@@ -1,0 +1,108 @@
+$(document).ready(function(){
+	$('#bt_add').click(function(){
+		agregar();
+	});
+
+	$('#bt_addv').click(function(){
+		agregarVideos();
+	});
+	
+	$('#btn_guardar').click(function(){
+		if($("#idPersona option:selected").text()!=null){
+			$("#idPersona").val('default').selectpicker("refresh");
+			$("#TipoPersona option:selected").text('');
+		}
+		if($("#link").val()!=null){
+			$("#link").val('');
+		}
+	});
+
+	});
+
+	var idPersona,persona,TipoPersona,tipoPersonaNombre;
+	var link,Descripcion;
+	var fila, filaVideos;
+	var cont=0;
+	var contVideos=0;	
+
+	$("#idPersona").change(mostrarValores);	
+	function mostrarValores(){
+	datosPersona=document.getElementById('idPersona').value.split('_');
+	
+	}
+	
+	function agregar(){
+		datosPersona=document.getElementById('idPersona').value.split('_');
+	
+		idPersona=datosPersona[0];
+		persona=$("#idPersona option:selected").text();
+		TipoPersona=$("#TipoPersona").val();
+		tipoPersonaNombre=$("#TipoPersona option:selected").text();
+	
+		if (idPersona!=null && TipoPersona!=null){
+			
+			 fila='<tr class="selected" id="fila'+cont+'"><td><button type="button" class="btn btn-warning" onclick="eliminar('+cont+
+			');">X</button></td><td><input type="hidden" name="idPersona[]" value="'+idPersona+
+			'">'+persona+'</td><td><input type="hidden" name="TipoPersona[]" value="'+TipoPersona+
+			'">'+tipoPersonaNombre+'</td></tr>';	
+			
+			cont++;			
+			$('#detalleAgrupacion').append(fila);				
+			$("#idPersona").val('default').selectpicker("refresh");
+			$("#TipoPersona option:selected").text('');
+
+		}else{
+			alert("Selecionar persona y tipo persona");
+		}
+	}
+function eliminar(index){   		 
+	$("#fila" + index).remove();
+}
+/**ELIMINAR */
+function eliminarDetalle(index){
+	
+	$.get('deleteIntegrante/'+index, function(){		
+		location.reload();
+	});
+}
+
+/*function obtenrDetalle(){
+	
+	$.get('obtenerDetalle', function(){		
+		alert("actualizado");
+	});
+}*/
+/** agregar videos */
+function agregarVideos(){	
+	link=$("#link").val();
+	Descripcion=$("#Descripcion").val();
+
+	if (link!="" && Descripcion!=""){		
+		 filaVideos='<tr class="selected" id="filaVideos'+contVideos+'"><td><button type="button" class="btn btn-warning" onclick="eliminarVideos('+contVideos+
+		');">X</button></td><td><input type="hidden" name="link[]" value="'+link+
+		'">'+link+'</td><td><input type="hidden" name="Descripcion[]" value="'+Descripcion+
+		'">'+Descripcion+'</td></tr>';	
+		
+		contVideos++;			
+		$('#detalleAgrupacionv').append(filaVideos);
+		$("#link").val('');
+		$("#Descripcion").val('');
+	}else{
+		alert("Ingresar link y descripcón");
+	}
+}
+
+function eliminarVideos(index){   		 
+	$("#filaVideos" + index).remove();
+}
+
+/**ELIMINAR */
+function eliminarDetalleV(index){	
+	$.get('deleteVideos/'+index, function(){		
+		location.reload();
+	});
+}
+
+/** end add */
+
+	

@@ -1,0 +1,14 @@
+https://www.youtube.com/watch?v=MMtiINMy8k4
+
+https://www.onlinelogomaker.com
+
+<a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
+
+
+
+SELECT * FROM persona p
+inner join enumerado e  on p.GeneroId = e.Valor_enumerado and e.Tipo_Enumerado = 'GENERO'
+
+https://styde.net/formulario-con-datepicker-en-laravel/
+
+https://www.youtube.com/watch?v=4X-bIQeUQ48
