@@ -1,0 +1,47 @@
+public class MyVerifier{
+
+    Ruta final estática  privada BASE_DIR = Rutas . get ( " src / test / resources / check / " );
+   privado estático final int COMMENT_PREFIX_LENGTH = 2 ;
+   privado estático final int COMMENT_SUFFIX_LENGTH = 0 ;                
+ 
+   pública  estática  vacío  verificar ( Cadena  relativePath , RuleCheck  cheque ) {
+     createVerifier (ruta relativa, comprobar) . assertOneOrMoreIssues ();
+   }
+ 
+   pública  estática  vacío  verifyNoIssue ( Cadena  relativePath , RuleCheck  cheque ) {
+     createVerifier (ruta relativa, comprobar) . asertNoIssues ();
+   }
+ 
+   privada  estática  SingleFileVerifier  createVerifier ( Cadena  relativePath , RuleCheck  cheque ) {
+      Path ruta =  BASE_DIR . resolver (ruta relativa);
+     Verificador SingleFileVerifier =  SingleFileVerifier . crear (ruta, UTF_8 );
+     / * luego escaneamos el archivo para recopilar: 1) comentario, 2) problemas planteados por la verificación de reglas ... * /
+     {
+       // 1) Para cada comentario, llame a "addComment (...)": 
+       verificador . addComment (token . línea, token . columna, token . valor, COMMENT_PREFIX_LENGTH , COMMENT_SUFFIX_LENGTH );
+ 
+       // 2) Para cada problema planteado por una llamada de regla "reportIssue (...)": 
+       //    2.1) problema en el 
+       verificador de archivos . reportIssue ( " Este archivo tiene un nombre incorrecto " ) . en archivo();
+ 
+       //    2.2) problemas del 
+       verificador en línea . reportIssue ( " Esta línea es demasiado larga " ) . onLine (línea);
+       verificador . reportIssue ( " Esta línea cuesta mucho " ) . onLine (línea) . withGap ( 2.5d );
+ 
+       //    2.3) problema en el 
+       verificador de rango . reportIssue ( " Nombre no válido " ) . onRange (línea, columna, endLine, endColumn);
+       
+       //    2.3) problema con un 
+       verificador de ubicación secundario . reportIssue ( " Ya inicializado " ) . onRange (línea, columna, endLine, endColumn)
+         .addSecondary ( línea . secundaria , columna . secundaria , secundaria . endLine, secundaria . endColumn, " Original " );
+ 
+       //    2.4) problema con el 
+       verificador de flujo . reportIssue ( " Siempre verdadero " ) . onRange (línea, columna, endLine, endColumn)
+         .addFlow (flujo1_1 . línea, flujo1_1 . columna, flujo1_1 . endLine, flujo1_1 . endColumn, 1 , " Establecer como nulo " )
+         .addFlow (flow1_2 . line, flow1_2 . column, flow1_2 . endLine, flow1_2 . endColumn, 1 , " Siempre nulo " )
+         .addFlow (flujo2_1 . línea, flujo2_1 . columna, flujo2_1 . endLine, flujo2_1 . endColumn, 2 , " No es nulo " );
+     }
+     verificador de retorno ;
+   }
+ 
+ }
