@@ -1,0 +1,126 @@
+Afirma un problema con el comentario en la misma línea.
+
+alerta ( msg ) ;  // Incumplido
+Afirma un problema con el comentario en una línea diferente.
+
+// 
+Alerta de incumplimiento @ + 1 ( msg ) ;
+Afirmar un problema con un mensaje y / o un effortToFix.
+
+alerta ( msg ) ;  // No conforme {{Aquí el mensaje de error esperado}} [[esfuerzoToFix = 2]]
+Afirma varios problemas en la misma línea.
+
+alerta ( msg ) ;  // No conforme 2
+
+alerta ( msg ) ;  // No conforme {{Mensaje de error esperado 1}} {{Mensaje de error esperado 2}}
+Indique la ubicación primaria precisa de un problema con el comentario en una línea a continuación que contiene el número requerido de ^
+
+  alerta ( msg ) ;  // No conforme {{Mensaje de la regla}} 
+// ^^^
+Indique las ubicaciones primarias y secundarias precisas de un problema. Tenga en cuenta que cuando se prueban ubicaciones secundarias se requiere una ubicación primaria precisa .
+
+  alerta ( msg ) ; 
+// ^^^> {{Mensaje de ubicación secundaria1}} 
+  alerta ( msg ) ;  // No conforme {{Mensaje de la regla}} 
+// ^^^ 
+  alert ( msg ) ; 
+// ^^^ <{{Mensaje de ubicación secundaria2}}
+Afirma varias ubicaciones secundarias en la misma línea usando la sintaxis @-1/ @+1.
+
+  alerta ( msg ) ;  // No conforme {{Mensaje de la regla}} 
+// ^^^^^ 
+// ^^^^^ @ - 1 <{{ 
+Mensaje de ubicación secundaria1}} // ^ @ - 2 <{{Mensaje de ubicación secundaria2}}
+Afirmar la ubicación primaria o secundaria de varias líneas con la siguiente sintaxis. Para ello, solo necesita un solo ^apunte en la columna de inicio de ubicación. La posición de ^se ignorará cuando scse proporcione la propiedad (columna de inicio). Cuando no se proporciona @+X/ @-X, el comentario de la línea anterior se considerará como la primera línea de ubicación. Si se proporciona @+X/ @-X, el cambio se realiza en relación con esta línea anterior. +/-en el(línea final) se considerará en relación con la línea de inicio de la ubicación. ecrepresenta la columna final.
+
+// el problema está en ambas líneas aquí 
+alert ( msg ) ;  // Noncompliant {{}} Regla mensaje 
+de alerta ( msg ) ; 
+// ^ [sc = 1; el = + 1; ec = 11] @ - 1
+El mismo problema de otra manera:
+
+// el problema está en ambas líneas aquí 
+  alert ( msg ) ;  // No conforme {{Mensaje de la regla}} 
+// ^ [el = + 2; ec = 13] 
+  alert ( msg ) ;
+Ejemplo de esta sintaxis utilizada para una ubicación principal de una sola línea (puede ser útil si no puede sangrar el código para que se ajuste al inicio del comentario) y también una ubicación secundaria:
+
+alerta ( msg ) ;  // No conforme {{Mensaje de la regla}} 
+// ^ [sc = 1; el = + 0; ec = 11]
+
+alerta ( msg ) ; 
+alerta ( msg ) ; 
+// ^ [sc = 1; el = + 1; ec = 11] @ - 1 <{{Mensaje secundario}}
+Uso a nivel de verificador
+Inicialización, hay dos casos de uso principales:
+
+SingleFileVerifier
+
+Cuando un analizador de idiomas solo prueba un solo archivo de código fuente a la vez y puede informar problemas solo en ese archivo, debe crear: SingleFileVerifier verifier = SingleFileVerifier.create(path, UTF_8);
+
+MultiFileVerifier
+
+Cuando un analizador de idiomas prueba un archivo de código fuente principal que puede incluir otros archivos e informar problemas en varios archivos, debe crear: MultiFileVerifier verifier = MultiFileVerifier.create(path, UTF_8);
+
+Recopilación de comentarios
+
+Informar todos los comentarios del código fuente analizados con el método verifier.addComment(...)
+
+Recopilación de problemas
+
+Informar todos los problemas planteados por la regla con el método verifier.reportIssue(...)
+
+Afirmar que los problemas reales coinciden con los problemas esperados
+
+Finalice la prueba unitaria llamando verifier.assertOneOrMoreIssues()overifier.assertNoIssues()
+
+Ejemplo de uso
+Este ejemplo de uso SingleFileVerifier, pero sería lo mismo con la MultiFileVerifierexcepción del pathparámetro que se necesita para algunos métodos de verificación.
+
+public  class  MyVerifier {
+
+   Ruta final estática  privada BASE_DIR = Rutas . get ( " src / test / resources / check / " );
+  privado estático final int COMMENT_PREFIX_LENGTH = 2 ;
+  privado estático final int COMMENT_SUFFIX_LENGTH = 0 ;                
+
+  pública  estática  vacío  verificar ( Cadena  relativePath , RuleCheck  cheque ) {
+    createVerifier (ruta relativa, comprobar) . assertOneOrMoreIssues ();
+  }
+
+  pública  estática  vacío  verifyNoIssue ( Cadena  relativePath , RuleCheck  cheque ) {
+    createVerifier (ruta relativa, comprobar) . asertNoIssues ();
+  }
+
+  privada  estática  SingleFileVerifier  createVerifier ( Cadena  relativePath , RuleCheck  cheque ) {
+     Path ruta =  BASE_DIR . resolver (ruta relativa);
+    Verificador SingleFileVerifier =  SingleFileVerifier . crear (ruta, UTF_8 );
+    / * luego escaneamos el archivo para recopilar: 1) comentario, 2) problemas planteados por la verificación de reglas ... * /
+    {
+      // 1) Para cada comentario, llame a "addComment (...)": 
+      verificador . addComment (token . línea, token . columna, token . valor, COMMENT_PREFIX_LENGTH , COMMENT_SUFFIX_LENGTH );
+
+      // 2) Para cada problema planteado por una llamada de regla "reportIssue (...)": 
+      //    2.1) problema en el 
+      verificador de archivos . reportIssue ( " Este archivo tiene un nombre incorrecto " ) . en archivo();
+
+      //    2.2) problemas del 
+      verificador en línea . reportIssue ( " Esta línea es demasiado larga " ) . onLine (línea);
+      verificador . reportIssue ( " Esta línea cuesta mucho " ) . onLine (línea) . withGap ( 2.5d );
+
+      //    2.3) problema en el 
+      verificador de rango . reportIssue ( " Nombre no válido " ) . onRange (línea, columna, endLine, endColumn);
+      
+      //    2.3) problema con un 
+      verificador de ubicación secundario . reportIssue ( " Ya inicializado " ) . onRange (línea, columna, endLine, endColumn)
+        .addSecondary ( línea . secundaria , columna . secundaria , secundaria . endLine, secundaria . endColumn, " Original " );
+
+      //    2.4) problema con el 
+      verificador de flujo . reportIssue ( " Siempre verdadero " ) . onRange (línea, columna, endLine, endColumn)
+        .addFlow (flujo1_1 . línea, flujo1_1 . columna, flujo1_1 . endLine, flujo1_1 . endColumn, 1 , " Establecer como nulo " )
+        .addFlow (flow1_2 . line, flow1_2 . column, flow1_2 . endLine, flow1_2 . endColumn, 1 , " Siempre nulo " )
+        .addFlow (flujo2_1 . línea, flujo2_1 . columna, flujo2_1 . endLine, flujo2_1 . endColumn, 2 , " No es nulo " );
+    }
+    verificador de retorno ;
+  }
+
+}
